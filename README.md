@@ -5,7 +5,7 @@ It requires the genomic region where the gene is located from each target specie
 
 ## Installation
 
-First, you will need to clone the repository into a local folder. Then, you can use on of three methods to install dependencies in order to be able to run the tool: conda, docker and singularity.
+First, you will need to [clone](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) the repository into a local folder. Then, you can use on of three methods to install dependencies in order to be able to run the tool: conda, docker and singularity.
 
 ### Using conda
 
