@@ -137,74 +137,7 @@ class GenomicTarget():
         for j in re.finditer('[-]+', flanked_refexon):
             self.preliminar_gaps_size.add(j.end() - j.start())
 
-    def general_stats(self):
-        '''Coding sequence prediction statistics'''
-
-        def avgidentity(self):
-            '''Returns the average alignment identity'''
-            a = 0
-            for i in self.dic_exons:
-                a += self.dic_exons[i][5]
-            avgidentity = a / len(self.dic_exons)
-            avgidentity = str(round(avgidentity, 2))
-            return avgidentity
-
-        def avgexonsize(self):
-            '''Returns the average predicted exon size'''
-            b = 0
-            for i in self.dic_exons:
-                b += len(self.dic_exons[i][0])
-            avgexonsize = b / len(self.dic_exons)
-            avgexonsize = str(round(avgexonsize, 2))
-            return avgexonsize
-
-        def minexon(self):
-            '''Returns a string with the smallest exon and the corresponding size'''
-            exsize = []
-            for i in self.dic_exons:
-                exsize.append([len(self.dic_exons[i][0]), i])
-            exsize = sorted(exsize)
-            return str('Exon ' + str(exsize[0][1]) + ' (' + str(exsize[0][0]) + ' bp)')
-
-        def maxexon(self):
-            '''Returns a string with the largest exon and the corresponding size'''
-            exsize = []
-            for i in self.dic_exons:
-                exsize.append([len(self.dic_exons[i][0]), i])
-            exsize = sorted(exsize)
-            return str('Exon ' + str(exsize[len(exsize) - 1][1]) + ' (' + str(exsize[len(exsize) - 1][0]) + ' bp)')
-
-        def splicesiteintegrity(self):
-            '''Returns a string with the splice site integrity (No. of functional splicing sites/total splicing sites)'''
-            sp = 0
-            sptotal = 0
-            if numtotalexons != 1:  # Intronless genes are not considered
-                for i in self.dic_exons:
-                    if i == 1:
-                        if self.dic_exons[i][4] == 'GT' or self.dic_exons[i][4] == 'GC':
-                            sp += 1
-                        sptotal += 1
-                    elif i == numtotalexons:
-                        if self.dic_exons[i][3] == 'AG':
-                            sp += 1
-                        sptotal += 1
-                    else:
-                        if self.dic_exons[i][3] == 'AG':
-                            sp += 1
-                        if self.dic_exons[i][4] == 'GT' or self.dic_exons[i][4] == 'GC':
-                            sp += 1
-                        sptotal += 2
-            if sptotal != sp:
-                return str('<span style="color: #990000">' + str(sp) + '/' + str(sptotal) + '</span>')
-            else:
-                return str(sp) + '/' + str(sptotal)
-
-        def gccontent(self):
-            '''Returns the % of guanine-cytosine content of the corresponding predicted coding sequence (CDS)'''
-            gc = (self.pred_cds.count('G') + self.pred_cds.count('C')) / len(self.pred_cds)
-            gc = gc * 100
-            gc = round(gc, 2)
-            return str(gc)
+    
 
         
 
@@ -976,6 +909,10 @@ if __name__ == '__main__':
     else:
         exon_pos_dict = {}
         exon_pos_dict[list_exs_cds[0].id] = [exon1_no_utr_start, last_exon_no_utr_end]
+
+    exon_data = {}
+
+        
     
     for i in genomic_targets_list:
 
@@ -983,6 +920,8 @@ if __name__ == '__main__':
         t_aligned_exons = [x for x in i.exon_alns.keys()]
         exonscat_withgaps = ''
         reference_exonscat_withgaps = ''
+
+        exon_data[i.id] = i.exon_alns
 
         table_frameshifts = create_mutations_table(i, mainpath + 'frameshifts.csv')
 
@@ -1095,13 +1034,17 @@ if __name__ == '__main__':
                     macsereliablesequences.append(i.speciesname)
             fasta_predicted_cds.write('>' + i.speciesname + '\n' + i.pred_cds + '\n')
             
-            i.general_stats()
             
         i.exons_file.close()
-
+    
+    
     '''End of main loop'''
-
-
+    general_stats_dict= general_stats(exon_data, list_exs_cds)
+    general_stats_table = pd.DataFrame.from_dict(general_stats_dict).T.reset_index()
+    print(general_stats_table)
+    general_stats_table.columns = ['Target', "Avg. Exon Align. Pid", 'Avg. Exon Size', 'Min Exon Size', 'Larg. Exon size', 'Splice site integrity', 'Aligning exons']
+    general_stats_table.to_csv(mainpath + 'general_stats.csv', sep=',', encoding='utf-8', index=False, header=True)
+    
     get_local_time()
 
 

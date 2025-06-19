@@ -553,6 +553,78 @@ def correct_index_for_gaps(seq1, index, type):
             if seq1[:i].replace('-', '') == seq2:
                 return i
     
-    
+def general_stats(exon_data, list_exs_cds):
+
+    '''Coding sequence prediction statistics'''
+
+    def avgidentity(exon_alns):
+        '''Returns the average alignment identity'''
+        a = 0
+        for i in exon_alns:
+            a += exon_alns[i][6]
+        avgidentity = a / len(exon_alns)
+        avgidentity = str(round(avgidentity, 2))
+        return avgidentity
+
+    def avgexonsize(exon_alns):
+        '''Returns the average predicted exon size'''
+        b = 0
+        for i in exon_alns:
+            b += exon_alns[i][8]-exon_alns[i][7] + 1
+        avgexonsize = b / len(exon_alns)
+        avgexonsize = str(round(avgexonsize, 2))
+        return avgexonsize
+
+    def minexon(exon_alns):
+        '''Returns a string with the smallest exon and the corresponding size'''
+        exsize = []
+        for i in exon_alns:
+            exsize.append([exon_alns[i][8]-exon_alns[i][7] + 1, i])
+        exsize = sorted(exsize)
+        return str('Exon ' + str(exsize[0][1]) + ' (' + str(exsize[0][0]) + ' bp)')
+
+    def maxexon(exon_alns):
+        '''Returns a string with the largest exon and the corresponding size'''
+        exsize = []
+        for i in exon_alns:
+            exsize.append([exon_alns[i][8]-exon_alns[i][7] + 1, i])
+        exsize = sorted(exsize)
+        return str('Exon ' + str(exsize[len(exsize) - 1][1]) + ' (' + str(exsize[len(exsize) - 1][0]) + ' bp)')
+
+    def splicesiteintegrity(exon_alns):
+        '''Returns a string with the splice site integrity (No. of functional splicing sites/total splicing sites)'''
+        sp = 0
+        sptotal = 0
+        if numtotalexons != 1:  # Intronless genes are not considered
+            for i in exon_alns:
+                
+                if int(i) == 1:
+                    if exon_alns[i][4].upper() == 'GT' or exon_alns[i][4].upper() == 'GC':
+                        sp += 1
+                    sptotal += 1
+                elif int(i) == numtotalexons:
+                    if exon_alns[i][3].upper() == 'AG':
+                        sp += 1
+                    sptotal += 1
+                else:
+                    if exon_alns[i][3].upper() == 'AG':
+                        sp += 1
+                    if exon_alns[i][4].upper() == 'GT' or exon_alns[i][4].upper() == 'GC':
+                        sp += 1
+                    sptotal += 2
+        
+        return str(sp) + '/' + str(sptotal)
+
+    general_stats_dict = {}
+    numtotalexons = len(list_exs_cds) - 1
+    for target in exon_data.keys():
+
+        try:
+        
+            general_stats_dict[target] = [avgidentity(exon_data[target]), avgexonsize(exon_data[target]), minexon(exon_data[target]), maxexon(exon_data[target]), splicesiteintegrity(exon_data[target]), ','.join([str(x) for x in exon_data[target].keys()])]
+        except:
+            pass
+
+    return general_stats_dict
 
 
