@@ -78,7 +78,8 @@ The next step will be to run pseudochecker:
 
 	python pseudochecker.py --file_exs_cds  out_prefix_reference.fa --file_genomic genomic_region.fna   --analysis_name prefix_name --main_path output_folder -c number_cores --skip_MACSE 
 
-For large datasets, we recommend using the "--skip_MACSE" flag. With this flag active, the software does not create a multiple sequence alignment for all targets, which can become very slow and less reliable with many targets. 
+A list of parameters for PseudoChecker2 is available at the bottom of this README.
+
 By default, PseudoChecker2 uses the same algorithm for exon alignments as PseudoChecker (Biopython's implementation of Needleman-Wunsch alignment: pairwise2.align.globalms). However, for large datasets, we recommend using the "--needle" flag, which uses Emboss's implementation of Needleman-Wunsch.
 
 If you intend to create a multiple sequence alignment for a subset of targets, you can do so with:
@@ -119,61 +120,7 @@ In the output folder, you will have:
 -first_step_data_dill.pkl - file in dill format with information on the analysis (necessary for running pseudochecker_exclusive_macse.py and for displaying MACSE alignment in PseudoViz)
 
 
-For easier visualization of these results you can use the PseudoViz web-tool.
-
-## Pseudoviz
-
-[Pseudoviz](https://bitbucket.org/rresendepinto/pseudoviz/src/master/)  allows you to display the output of pseudochecker2.0 in a more intuitive way, showing: 
-
-
-* a set of statistics that infer the likelihood of a gene being pseudogenized/lost; 
-* the visualization of each exon; 
-* the mapping of each exon on the genomic region;
-* and alignments of the coding sequences for all or a subset of the target species. 
-
-Just upload these files to PseudoViz:
-
-
-* exon_alns.json
-* reference-file-used-for-pseudochecker.fa
-* fasta-with-genomic-regions-used-for-pseudochecker.fa (necessary for showing the exons within the region)
-
-You can also install PseudoViz locally:
-
-### Install and use with docker
-
-
-* docker pull rrpinto/pseudoviz
-* docker run -p 8888:5000 rrpinto/pseudoviz
-
-Go to this link on your browser http://localhost:8888 and the app should be live
-
-### Install and use with singularity
-
-
-First pull the image:
-
-* singularity pull pseudoviz.sif docker://rrpinto/pseudoviz
-
-Then run it to go inside the image:
-
-* singularity run pseudoviz.sif
-
-Inside the image cd into PseudoViz folder and run:
-
-* python flask_website.py
-
-You can now go to http://193.136.51.225:5000/ on your browser and the app should be running.
-
-## Dendrogram display
-
-To get a phylogenetic overview of the mutations and the inferred PseudoIndex scores, you can create a json file from the results of PseudoChecker2, the reference used and a phylogenetic tree :
-
-* python create_json_tree.py -r out_prefix_reference.fa -t phylogenetic_tree.treefile -f results_folder/ > results_dendrogram.json
-
-Note that it is ok to have species in the tree provided that had not been analysed by PseudoChecker2. These simply won't show up in the dendrogram.
-
-To then view the dendrogram, go into the respective page in PseudoViz and upload the created json. The tree should then be displayed with a color code representing PseudoIndex and the mutations when you hover above a specific node.
+For easier visualization of these results you can use the [PseudoViz](https://github.com/rresendepinto/PseudoViz/tree/main) web-tool.
 
 
 
